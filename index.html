@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кибермошенничество & Фишинг — Интерактивный курс</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b10;
+    --surface: #0d1520;
+    --surface2: #111d2e;
+    --border: #1a3050;
+    --cyan: #00e5ff;
+    --green: #00ff9d;
+    --red: #ff2d55;
+    --orange: #ff9500;
+    --yellow: #ffd60a;
+    --text: #c8dff5;
+    --text-dim: #5a7fa8;
+    --mono: 'Share Tech Mono', monospace;
+    --heading: 'Barlow Condensed', sans-serif;
+    --body: 'Barlow', sans-serif;
+    --glow-cyan: 0 0 20px rgba(0,229,255,0.4);
+    --glow-green: 0 0 20px rgba(0,255,157,0.4);
+    --glow-red: 0 0 20px rgba(255,45,85,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-weight: 300;
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+
+  /* SCANLINE EFFECT */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+    background: rgba(7,11,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    text-shadow: var(--glow-cyan);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--heading);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: grid-drift 20s linear infinite;
+  }
+
+  @keyframes grid-drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(60px); }
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 300px;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fade-up 0.6s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--heading);
+    font-size: clamp(52px, 9vw, 110px);
+    font-weight: 800;
+    line-height: 0.92;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fade-up 0.6s 0.4s forwards;
+  }
+
+  .hero-title span { color: var(--cyan); text-shadow: var(--glow-cyan); }
+  .hero-title .accent-red { color: var(--red); text-shadow: var(--glow-red); }
+
+  .hero-sub {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--text-dim);
+    max-width: 540px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fade-up 0.6s 0.6s forwards;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: fade-up 0.6s 0.8s forwards;
+  }
+
+  .btn {
+    font-family: var(--heading);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 32px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary {
+    background: var(--cyan);
+    border-color: var(--cyan);
+    color: var(--bg);
+  }
+
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--cyan);
+    box-shadow: var(--glow-cyan);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text-dim);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .hero-stats {
+    position: absolute;
+    bottom: 40px;
+    display: flex;
+    gap: 48px;
+    opacity: 0;
+    animation: fade-up 0.6s 1s forwards;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 28px;
+    color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTIONS */
+  section { padding: 80px 40px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: var(--heading);
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .section-lead {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin-bottom: 56px;
+  }
+
+  /* WHAT IS PHISHING */
+  .definition-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 48px;
+  }
+
+  .def-card {
+    background: var(--surface);
+    padding: 40px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .def-card:hover { border-color: var(--cyan); }
+
+  .def-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+  }
+
+  .def-card.cyan::before { background: var(--cyan); }
+  .def-card.red::before { background: var(--red); }
+  .def-card.green::before { background: var(--green); }
+  .def-card.orange::before { background: var(--orange); }
+
+  .def-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .def-title {
+    font-family: var(--heading);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .def-text {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* TYPES SECTION */
+  .types-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .type-card {
+    background: var(--surface);
+    padding: 32px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .type-card:hover {
+    background: var(--surface2);
+    transform: translateY(-4px);
+    border-color: var(--cyan);
+  }
+
+  .type-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .type-name {
+    font-family: var(--heading);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--cyan);
+  }
+
+  .type-eng {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .type-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* SIGNS SECTION */
+  #signs { background: var(--surface); }
+
+  .signs-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .signs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sign-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    transition: border-color 0.2s;
+  }
+
+  .sign-item:hover { border-color: var(--red); background: rgba(255,45,85,0.05); }
+
+  .sign-num {
+    font-family: var(--mono);
+    font-size: 20px;
+    color: var(--red);
+    text-shadow: var(--glow-red);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .sign-content h4 {
+    font-family: var(--heading);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .sign-content p {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .email-mock {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .email-header {
+    background: var(--surface2);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .email-dots { display: flex; gap: 6px; }
+  .email-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: var(--red); }
+  .dot-y { background: var(--yellow); }
+  .dot-g { background: var(--green); }
+
+  .email-title-bar {
+    color: var(--text-dim);
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-left: 8px;
+  }
+
+  .email-body { padding: 20px; line-height: 2; }
+
+  .email-field {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .email-label { color: var(--text-dim); }
+
+  .bad { color: var(--red); position: relative; }
+  .bad::after {
+    content: '⚠';
+    position: absolute;
+    right: -20px;
+    top: 0;
+    font-size: 10px;
+  }
+
+  .email-divider { border-color: var(--border); margin: 12px 0; }
+  .email-msg { color: var(--text); line-height: 1.6; font-size: 12px; }
+  .email-highlight { color: var(--cyan); cursor: pointer; text-decoration: underline; }
+
+  .badge-bad {
+    display: inline-block;
+    background: rgba(255,45,85,0.15);
+    border: 1px solid var(--red);
+    color: var(--red);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    margin-top: 12px;
+  }
+
+  /* PROTECTION */
+  .protection-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+
+  .prot-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    transition: all 0.3s;
+  }
+
+  .prot-card:hover { border-color: var(--green); }
+
+  .prot-icon-wrap {
+    width: 48px;
+    height: 48px;
+    background: rgba(0,255,157,0.1);
+    border: 1px solid rgba(0,255,157,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .prot-title {
+    font-family: var(--heading);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--green);
+  }
+
+  .prot-text {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* STATS BANNER */
+  .stats-banner {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .big-stat { text-align: center; }
+
+  .big-num {
+    font-family: var(--heading);
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 800;
+    color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+    display: block;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .big-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    max-width: 180px;
+  }
+
+  /* GAME SECTION */
+  #game-section {
+    background: var(--bg);
+    padding: 80px 40px;
+  }
+
+  .game-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .widget-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--cyan);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .widget-container.shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
+  /* GAME INTERNAL STYLES */
+  .game-hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+  }
+
+  .hud-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .hud-label { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+  .hud-value { font-size: 20px; color: var(--cyan); text-shadow: var(--glow-cyan); }
+
+  .timer-wrapper {
+    padding: 0 24px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  #timer-bar-outer {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+
+  #timer-bar {
+    height: 100%;
+    width: 100%;
+    background: var(--cyan);
+    transition: width 0.1s linear, background 0.3s;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  #timer-bar.warning { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+  #timer-bar.danger { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+  .game-content {
+    padding: 32px 24px;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* SCREENS */
+  .screen { display: none; width: 100%; flex-direction: column; align-items: center; }
+  .screen.active { display: flex; }
+
+  .screen-title {
+    font-family: var(--heading);
+    font-size: 36px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .screen-sub {
+    font-size: 14px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-bottom: 32px;
+    max-width: 400px;
+    line-height: 1.6;
+  }
+
+  .game-btn {
+    font-family: var(--heading);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 40px;
+    background: var(--cyan);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--glow-cyan);
+  }
+
+  .game-btn:hover {
+    background: transparent;
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+  }
+
+  .final-score-display {
+    font-family: var(--mono);
+    font-size: 64px;
+    color: var(--cyan);
+    text-shadow: var(--glow-cyan);
+    margin: 8px 0;
+  }
+
+  #game-message {
+    font-size: 14px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  /* OPTIONS */
+  #options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .game-question {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+
+  .option-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.5;
+    position: relative;
+    border-left: 3px solid transparent;
+  }
+
+  .option-card:hover {
+    border-color: var(--cyan);
+    border-left-color: var(--cyan);
+    background: rgba(0,229,255,0.05);
+    color: var(--cyan);
+    transform: translateX(4px);
+  }
+
+  .option-card.correct {
+    border-color: var(--green) !important;
+    border-left-color: var(--green) !important;
+    background: rgba(0,255,157,0.1) !important;
+    color: var(--green) !important;
+  }
+
+  .option-card.wrong {
+    border-color: var(--red) !important;
+    border-left-color: var(--red) !important;
+    background: rgba(255,45,85,0.1) !important;
+    color: var(--red) !important;
+  }
+
+  .option-card.correct::after { content: '✓ ФИШИНГ!'; float: right; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; }
+  .option-card.wrong::after { content: '✗ ОШИБКА'; float: right; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--cyan);
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+
+  .footer-text {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* TERMINAL BLINK */
+  .blink {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    section { padding: 60px 20px; }
+    .definition-block,
+    .types-grid,
+    .signs-layout,
+    .protection-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 24px; }
+    .stats-row { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CYBER_SEC<span class="blink">_</span></div>
+  <ul class="nav-links">
+    <li><a href="#signs">Признаки</a></li>
+    <li><a href="#protection">Защита</a></li>
+    <li><a href="#game-section">Игра</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-tag">// Интерактивный курс по кибербезопасности</div>
+  <h1 class="hero-title">
+    <span>Кибер</span><br>
+    <span class="accent-red">Мошен</span><span>ничество</span><br>
+    <span style="font-size: 0.55em; letter-spacing: 4px; font-weight: 300;">& ФИШИНГ</span>
+  </h1>
+  <p class="hero-sub">Узнай, как работают мошенники в интернете, научись распознавать угрозы и защити себя — а затем проверь знания в игре.</p>
+  <div class="hero-cta">
+    <a href="#theory" class="btn btn-primary">Начать обучение</a>
+    <a href="#game-section" class="btn btn-ghost">Сыграть в игру →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">3.4B</span>
+      <span class="stat-label">Фишинговых писем в день</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">95%</span>
+      <span class="stat-label">Кибератак начинаются с фишинга</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">$44B</span>
+      <span class="stat-label">Ущерб жертвам за 2023 год</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BANNER -->
+<div class="stats-banner">
+  <div class="stats-row">
+    <div class="big-stat reveal">
+      <span class="big-num">1 из 99</span>
+      <p class="big-label">писем является фишинговым</p>
+    </div>
+    <div class="big-stat reveal">
+      <span class="big-num">30 сек</span>
+      <p class="big-label">уходит у жертвы чтобы кликнуть на вредоносную ссылку</p>
+    </div>
+    <div class="big-stat reveal">
+      <span class="big-num">74%</span>
+      <p class="big-label">организаций подверглись фишинговым атакам в прошлом году</p>
+    </div>
+    <div class="big-stat reveal">
+      <span class="big-num">£1.6K</span>
+      <p class="big-label">средний ущерб на одну жертву фишинга</p>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNS -->
+<section id="signs">
+  <div class="container">
+    <p class="section-tag reveal">// 01 — Распознавание</p>
+    <h2 class="section-title reveal">Признаки <span style="color: var(--red);">фишинга</span></h2>
+    <p class="section-lead reveal">Научись видеть тревожные сигналы прежде, чем нажмёшь на ссылку или введёшь данные.</p>
+
+    <div class="signs-layout reveal">
+      <div class="signs-list">
+        <div class="sign-item">
+          <div class="sign-num">01</div>
+          <div class="sign-content">
+            <h4>Подозрительный адрес отправителя</h4>
+            <p>«support@sberbank-secure.ru» вместо «@sberbank.ru» — домен выглядит похоже, но не совпадает с официальным.</p>
+          </div>
+        </div>
+        <div class="sign-item">
+          <div class="sign-num">02</div>
+          <div class="sign-content">
+            <h4>Срочность и угрозы</h4>
+            <p>«Ваш аккаунт будет заблокирован через 24 часа!» — давление времени заглушает критическое мышление.</p>
+          </div>
+        </div>
+        <div class="sign-item">
+          <div class="sign-num">03</div>
+          <div class="sign-content">
+            <h4>Безличное обращение</h4>
+            <p>«Уважаемый клиент» вместо вашего имени — массовые рассылки не знают, кто вы.</p>
+          </div>
+        </div>
+        <div class="sign-item">
+          <div class="sign-num">04</div>
+          <div class="sign-content">
+            <h4>Подозрительные ссылки</h4>
+            <p>Наведи мышь — в строке внизу браузера покажется реальный адрес. Он отличается от отображаемого текста.</p>
+          </div>
+        </div>
+        <div class="sign-item">
+          <div class="sign-num">05</div>
+          <div class="sign-content">
+            <h4>Запрос конфиденциальных данных</h4>
+            <p>Банки и сервисы никогда не запрашивают пин-коды, CVV и полные пароли по email или телефону.</p>
+          </div>
+        </div>
+        <div class="sign-item">
+          <div class="sign-num">06</div>
+          <div class="sign-content">
+            <h4>Ошибки и несоответствия</h4>
+            <p>Грамматические ошибки, странные шрифты, пиксельные логотипы — признаки наспех сделанной подделки.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 16px; text-transform: uppercase;">// Пример фишингового письма:</p>
+        <div class="email-mock">
+          <div class="email-header">
+            <div class="email-dots">
+              <div class="email-dot dot-r"></div>
+              <div class="email-dot dot-y"></div>
+              <div class="email-dot dot-g"></div>
+            </div>
+            <span class="email-title-bar">ВХОДЯЩИЕ — подозрительное письмо</span>
+          </div>
+          <div class="email-body">
+            <div class="email-field">
+              <span class="email-label">От:</span>
+              <span class="bad">no-reply@sberbank-secure-online.ru</span>
+            </div>
+            <div class="email-field">
+              <span class="email-label">Кому:</span>
+              <span>you@email.com</span>
+            </div>
+            <div class="email-field">
+              <span class="email-label">Тема:</span>
+              <span class="bad">⚠ СРОЧНО: Ваш счет заблокирован</span>
+            </div>
+            <hr class="email-divider">
+            <div class="email-msg">
+              <p class="bad" style="margin-bottom: 8px;">Уважаемый клиент,</p>
+              <p style="margin-bottom: 8px;">Нами было <span class="bad">зафиксирована подозрительная активность</span> на Вашем счёте. Во избежание полной блокировки карты, необходимо <span class="bad">срочно</span> подтвердить личные данные.</p>
+              <p style="margin-bottom: 12px;">Перейдите по ссылке и введите данные карты в течение <span class="bad">24 часов</span>:</p>
+              <span class="email-highlight">www.sberbank-secure-verification.ru/login</span>
+              <br>
+              <span class="badge-bad">⚠ 6 признаков фишинга</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 16px; padding: 16px; background: rgba(255,45,85,0.08); border: 1px solid rgba(255,45,85,0.3);">
+          <p style="font-family: var(--mono); font-size: 11px; color: var(--red); letter-spacing: 1px; line-height: 1.8;">
+            ✗ Поддельный домен с «secure» в названии<br>
+            ✗ Грамматическая ошибка («зафиксирована активность»)<br>
+            ✗ Безличное обращение «уважаемый клиент»<br>
+            ✗ Искусственная срочность — 24 часа<br>
+            ✗ Ссылка ведёт не на sberbank.ru<br>
+            ✗ Запрос данных карты по email
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROTECTION -->
+<section id="protection" style="background: var(--surface);">
+  <div class="container">
+    <p class="section-tag reveal">// 02 — Защита</p>
+    <h2 class="section-title reveal">Как <span style="color: var(--green);">защититься</span></h2>
+    <p class="section-lead reveal">Простые, но эффективные меры, которые значительно снижают риск стать жертвой мошенников.</p>
+
+    <div class="protection-grid reveal">
+      <div class="prot-card">
+        <div class="prot-icon-wrap">🔐</div>
+        <div>
+          <div class="prot-title">Двухфакторная аутентификация</div>
+          <p class="prot-text">Включи 2FA на всех важных аккаунтах. Даже если мошенник украдёт пароль — без второго фактора (SMS, приложение-аутентификатор) он не войдёт.</p>
+        </div>
+      </div>
+      <div class="prot-card">
+        <div class="prot-icon-wrap">🔍</div>
+        <div>
+          <div class="prot-title">Проверяй ссылки</div>
+          <p class="prot-text">Перед переходом наведи мышь на ссылку — внизу браузера появится реальный URL. Всегда проверяй домен: bank.ru ≠ bank-secure.ru ≠ bankru.com.</p>
+        </div>
+      </div>
+      <div class="prot-card">
+        <div class="prot-icon-wrap">🚫</div>
+        <div>
+          <div class="prot-title">Никогда не передавай данные</div>
+          <p class="prot-text">Ни один банк, служба или сервис не просит pin-код, CVV или пароль по телефону или email. Если просят — это 100% мошенничество.</p>
+        </div>
+      </div>
+      <div class="prot-card">
+        <div class="prot-icon-wrap">🛡️</div>
+        <div>
+          <div class="prot-title">Антивирус и антифишинг</div>
+          <p class="prot-text">Современные браузеры и антивирусы имеют встроенную защиту от фишинга. Держи их обновлёнными — базы угроз пополняются ежечасно.</p>
+        </div>
+      </div>
+      <div class="prot-card">
+        <div class="prot-icon-wrap">⚡</div>
+        <div>
+          <div class="prot-title">Не торопись</div>
+          <p class="prot-text">Мошенники специально создают срочность. Остановись, подыши, позвони в официальный банк по номеру с карты. У реальных банков нет «24 часов».</p>
+        </div>
+      </div>
+      <div class="prot-card">
+        <div class="prot-icon-wrap">📚</div>
+        <div>
+          <div class="prot-title">Обучение и осведомлённость</div>
+          <p class="prot-text">Регулярно обновляй знания о новых схемах. Рассказывай близким, особенно пожилым родственникам — они чаще всего становятся жертвами телефонного мошенничества.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game-section">
+  <div class="container">
+    <p class="section-tag reveal">// 03 — Практика</p>
+    <h2 class="section-title reveal">Проверь себя:<br><span style="color: var(--cyan);">Найди фишинг</span></h2>
+    <p class="section-lead reveal">Среди нескольких сообщений спрятано одно фишинговое. Найди его как можно быстрее — скорость влияет на счёт. У тебя 3 жизни. Удачи.</p>
+
+    <div class="game-wrapper reveal">
+      <div class="widget-container" id="game-root">
+
+        <!-- HUD — скрыт до старта -->
+        <div class="game-hud" id="game-hud" style="display:none;">
+          <div class="hud-item">
+            <span class="hud-label">Счёт</span>
+            <span class="hud-value" id="score">0000</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Уровень</span>
+            <span class="hud-value" id="level">1</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Жизни</span>
+            <span class="hud-value" id="lives">❤️❤️❤️</span>
+          </div>
+        </div>
+
+        <!-- TIMER — скрыт до старта -->
+        <div class="timer-wrapper" id="timer-wrapper" style="display:none;">
+          <div id="timer-bar-outer">
+            <div id="timer-bar"></div>
+          </div>
+        </div>
+
+        <!-- ЕДИНСТВЕННЫЙ КОНТЕЙНЕР КОНТЕНТА -->
+        <div id="game-area" style="padding: 40px 24px; min-height: 380px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <!-- JS рендерит сюда нужный экран -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">CYBER_SEC_EDU<span class="blink">_</span></div>
+  <p class="footer-text">Интерактивный курс по кибербезопасности · Будь осторожен в сети</p>
+</footer>
+
+<!-- SCROLL REVEAL -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+<!-- GAME LOGIC -->
+<script>
+(function() {
+  const area      = document.getElementById('game-area');
+  const hudEl     = document.getElementById('game-hud');
+  const timerWrap = document.getElementById('timer-wrapper');
+  const timerBar  = document.getElementById('timer-bar');
+  const scoreEl   = document.getElementById('score');
+  const levelEl   = document.getElementById('level');
+  const livesEl   = document.getElementById('lives');
+  const rootEl    = document.getElementById('game-root');
+
+  const rounds = [
+    {
+      phish: "Сбербанк: Обнаружена подозрительная активность по вашей карте. Для подтверждения личности свяжитесь с нами и сообщите код из SMS.",
+      legit: [
+        "Сбербанк: Платёж 1 200₽ в «Пятёрочку» проведён успешно. Если это были не вы — позвоните по номеру на карте.",
+        "Сбербанк: Напоминаем: срок действия вашей карты *4412 истекает через 30 дней. Перевыпуск — в приложении."
+      ]
+    },
+    {
+      phish: "Налоговая служба: По результатам проверки вам положен налоговый вычет 8 400₽. Для получения уточните реквизиты карты у нашего специалиста.",
+      legit: [
+        "ФНС России: Ваша декларация 3-НДФЛ за 2024 год принята. Срок проверки — до 3 месяцев.",
+        "Госуслуги: Записались на приём в налоговую на 18 ноября в 11:00. Адрес: ул. Садовая, 14."
+      ]
+    },
+    {
+      phish: "ВТБ Безопасность: Ваш онлайн-банк будет заблокирован через 12 часов. Чтобы избежать блокировки, пройдите верификацию — ответьте на это сообщение.",
+      legit: [
+        "ВТБ: Перевод 3 000₽ от Ивана П. зачислен. Баланс обновлён.",
+        "ВТБ: Ваш вклад «Накопительный» пополнен на 10 000₽. Текущая сумма: 45 200₽."
+      ]
+    },
+    {
+      phish: "Wildberries: Ваш заказ не может быть доставлен — требуется подтверждение адреса. Ответьте на это сообщение или уточните данные у оператора.",
+      legit: [
+        "Wildberries: Заказ №45829103 передан курьеру. Доставка сегодня с 14 до 18.",
+        "Wildberries: Ваш отзыв на товар опубликован. Начислено 50 бонусных рублей."
+      ]
+    },
+    {
+      phish: "Служба поддержки Google: Ваш аккаунт будет удалён в связи с нарушением правил. Обратитесь в поддержку в течение 24 часов для отмены блокировки.",
+      legit: [
+        "Google: Выполнен вход на устройстве Android, Москва. Не вы? Проверьте безопасность аккаунта.",
+        "Google One: Вы использовали 14,2 ГБ из 15 ГБ. Рассмотрите возможность расширения хранилища."
+      ]
+    },
+    {
+      phish: "Отдел кадров: В связи с обновлением системы просим вас повторно подтвердить корпоративные данные — логин и пароль — ответным письмом.",
+      legit: [
+        "Бухгалтерия: Расчётный лист за октябрь доступен в личном кабинете сотрудника.",
+        "IT-отдел: Плановые технические работы в субботу с 23:00 до 03:00. Корпоративная почта будет недоступна."
+      ]
+    },
+    {
+      phish: "Госуслуги: Вам доступна социальная выплата 12 000₽. Для получения подтвердите данные паспорта и номер карты через форму обратной связи.",
+      legit: [
+        "Госуслуги: Заявление на получение загранпаспорта одобрено. Документ готов к выдаче.",
+        "МФЦ: Напоминаем о записи на 22 ноября в 10:30. Возьмите оригиналы документов."
+      ]
+    },
+    {
+      phish: "Авито: Покупатель готов забрать ваш товар. Для подтверждения сделки сообщите код, который придёт на ваш номер — это стандартная процедура безопасности.",
+      legit: [
+        "Авито: Новое сообщение по объявлению «Велосипед Trek». Покупатель спрашивает о состоянии.",
+        "Авито: Ваше объявление просмотрели 47 раз за неделю. Поднимите его для большего охвата."
+      ]
+    },
+    {
+      phish: "Тинькофф: Кто-то пытается изменить пароль вашего аккаунта. Если это не вы — срочно позвоните нам и продиктуйте данные карты для заморозки.",
+      legit: [
+        "Тинькофф: Кешбэк 340₽ за октябрь начислен на бонусный счёт.",
+        "Тинькофф: Автоплатёж за мобильную связь на 350₽ выполнен успешно."
+      ]
+    },
+    {
+      phish: "Служба доставки: Ваша посылка хранится на складе 5 дней. Для продления срока хранения уточните удобное время доставки у оператора по обратному звонку.",
+      legit: [
+        "СДЭК: Посылка №CDE99012 прибыла в пункт выдачи. Адрес: ул. Ленина, 5. Режим работы: 9–21.",
+        "DHL: Отправление 1234567890 прошло таможенное оформление. Ожидаемая доставка: 20 ноября."
+      ]
+    }
+  ];
+
+  let score = 0, level = 1, lives = 3;
+  let timeLeft = 100, timerTick = null, busy = false;
+
+  function updateHUD() {
+    scoreEl.textContent = String(score).padStart(4, '0');
+    levelEl.textContent = level;
+    livesEl.textContent = '❤️'.repeat(Math.max(0, lives));
+  }
+
+  function stopTimer() { clearInterval(timerTick); timerTick = null; }
+
+  function startTimer() {
+    stopTimer();
+    timeLeft = 100;
+    updateTimerBar();
+    timerTick = setInterval(function() {
+      timeLeft -= 0.5;
+      updateTimerBar();
+      if (timeLeft <= 0) { stopTimer(); onWrong(); }
+    }, 100);
+  }
+
+  function updateTimerBar() {
+    timerBar.style.width = timeLeft + '%';
+    timerBar.className = '';
+    if (timeLeft < 30) timerBar.classList.add('danger');
+    else if (timeLeft < 60) timerBar.classList.add('warning');
+  }
+
+  function showStart() {
+    stopTimer();
+    hudEl.style.display = 'none';
+    timerWrap.style.display = 'none';
+    area.style.cssText = 'padding:40px 24px;min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+    area.innerHTML =
+      '<p style="font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:3px;margin-bottom:16px;text-align:center;">ИНИЦИАЛИЗАЦИЯ...</p>' +
+      '<h2 class="screen-title">Детектор<br>Фишинга</h2>' +
+      '<p class="screen-sub">Найди фишинговое сообщение среди легитимных. Чем быстрее — тем больше очков. 3 жизни. Ошибка или время = потеря жизни.</p>' +
+      '<button class="game-btn" id="start-btn">&#9654; НАЧАТЬ</button>';
+    document.getElementById('start-btn').onclick = startGame;
+  }
+
+  function showRound() {
+    var round = rounds[Math.floor(Math.random() * rounds.length)];
+    var opts = [
+      { text: round.phish, isPhish: true },
+      { text: round.legit[0], isPhish: false },
+      { text: round.legit[1], isPhish: false }
+    ].sort(function() { return Math.random() - 0.5; });
+
+    area.style.cssText = 'padding:32px 24px;min-height:380px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;';
+    area.innerHTML =
+      '<p class="game-question">// Какое из сообщений является фишинговым?</p>' +
+      '<div id="opts" style="display:flex;flex-direction:column;gap:10px;width:100%;"></div>';
+
+    var optsEl = document.getElementById('opts');
+    opts.forEach(function(opt) {
+      var card = document.createElement('div');
+      card.className = 'option-card';
+      card.textContent = opt.text;
+      card.onclick = function() { onPick(card, opt); };
+      optsEl.appendChild(card);
+    });
+
+    busy = false;
+    startTimer();
+  }
+
+  function showOver() {
+    stopTimer();
+    hudEl.style.display = 'none';
+    timerWrap.style.display = 'none';
+    area.style.cssText = 'padding:40px 24px;min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+
+    var msg = score > 2000
+      ? '&#127942; Настоящий кибер-детектив! Твои данные в безопасности.'
+      : score > 500
+        ? '&#128077; Неплохо, но будь внимательнее — мошенники хитры.'
+        : '&#9888;&#65039; Осторожно! Ты слишком доверчив. Мошенники не дремлют.';
+
+    area.innerHTML =
+      '<p style="font-family:var(--mono);font-size:11px;color:var(--red);letter-spacing:3px;margin-bottom:8px;text-align:center;">GAME OVER</p>' +
+      '<h2 class="screen-title" style="color:var(--red);margin-bottom:8px;text-align:center;">Игра<br>окончена</h2>' +
+      '<p style="font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-bottom:4px;text-align:center;">ФИНАЛЬНЫЙ СЧЁТ</p>' +
+      '<div style="font-family:var(--mono);font-size:64px;color:var(--cyan);text-shadow:var(--glow-cyan);margin:4px 0 16px;text-align:center;">' + score + '</div>' +
+      '<p style="font-size:14px;color:var(--text-dim);text-align:center;margin-bottom:28px;max-width:360px;">' + msg + '</p>' +
+      '<button class="game-btn" id="restart-btn">&#8635; ИГРАТЬ ЕЩЁ РАЗ</button>';
+
+    document.getElementById('restart-btn').onclick = startGame;
+  }
+
+  function startGame() {
+    score = 0; level = 1; lives = 3; busy = false;
+    updateHUD();
+    hudEl.style.display = 'flex';
+    timerWrap.style.display = 'block';
+    showRound();
+  }
+
+  function onPick(card, opt) {
+    if (busy) return;
+    busy = true;
+    stopTimer();
+    if (opt.isPhish) {
+      card.classList.add('correct');
+      score += Math.round(timeLeft * level);
+      level++;
+      updateHUD();
+      setTimeout(showRound, 900);
+    } else {
+      card.classList.add('wrong');
+      onWrong();
+    }
+  }
+
+  function onWrong() {
+    if (!busy) { busy = true; stopTimer(); }
+    lives--;
+    updateHUD();
+    rootEl.classList.add('shake');
+    setTimeout(function() {
+      rootEl.classList.remove('shake');
+      if (lives > 0) showRound();
+      else showOver();
+    }, 800);
+  }
+
+  showStart();
+})();
+</script>
+
+</body>
+</html>
